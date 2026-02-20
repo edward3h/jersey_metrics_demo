@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
+import io.micrometer.registry.otlp.AggregationTemporality;
 import io.micrometer.registry.otlp.OtlpConfig;
 import io.micrometer.registry.otlp.OtlpMeterRegistry;
 
@@ -25,7 +26,11 @@ public class MetricsFactory {
 
             @Override
             public String url() {
-                return System.getenv("GRAFANA_CLOUD_OTLP_ENDPOINT");
+                String endpoint = System.getenv("GRAFANA_CLOUD_OTLP_ENDPOINT");
+                if (endpoint != null && !endpoint.endsWith("/v1/metrics")) {
+                    endpoint = endpoint.replaceAll("/+$", "") + "/v1/metrics";
+                }
+                return endpoint;
             }
 
             @Override
@@ -45,6 +50,11 @@ public class MetricsFactory {
             @Override
             public Map<String, String> resourceAttributes() {
                 return Map.of("service.name", "jersey-metrics-demo");
+            }
+
+            @Override
+            public AggregationTemporality aggregationTemporality() {
+                return AggregationTemporality.DELTA;
             }
         };
 

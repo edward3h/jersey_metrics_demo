@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Singleton
 @Path("/orders")
 @Produces(MediaType.APPLICATION_JSON)
 public class OrderResource {
