@@ -52,9 +52,12 @@ public class MetricsFactory {
                 return Map.of("service.name", "jersey-metrics-demo");
             }
 
+            // Grafana Cloud Mimir requires CUMULATIVE temporality.
+            // Override explicitly so OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+            // in the environment cannot silently change this.
             @Override
             public AggregationTemporality aggregationTemporality() {
-                return AggregationTemporality.DELTA;
+                return AggregationTemporality.CUMULATIVE;
             }
         };
 
