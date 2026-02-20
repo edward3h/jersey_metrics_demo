@@ -3,6 +3,7 @@ package demo.resource;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -15,6 +16,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Singleton
 @Path("/inventory")
 @Produces(MediaType.APPLICATION_JSON)
 public class InventoryResource {
