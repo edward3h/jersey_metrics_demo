@@ -31,7 +31,7 @@ Key wiring in `demo.config.AppConfig` (extends `ResourceConfig`):
 `demo.metrics.MetricsFactory` builds the OTLP push registry:
 - Auth is HTTP Basic using `GRAFANA_CLOUD_INSTANCE_ID:GRAFANA_CLOUD_API_TOKEN`
 - Endpoint normalisation: appends `/v1/metrics` to `GRAFANA_CLOUD_OTLP_ENDPOINT` if absent
-- Uses `AggregationTemporality.DELTA` and a 15 s push step
+- Uses `AggregationTemporality.CUMULATIVE` and a 15 s push step
 - Binds standard JVM/system binders on startup
 
 All three resource classes must be `@Singleton` — they hold state (`orders` list, `stockLevel` gauge) and/or inject other singleton resources.
@@ -41,3 +41,5 @@ All three resource classes must be `@Singleton` — they hold state (`orders` li
 - **`ServicesResourceTransformer`** in `maven-shade-plugin` is mandatory — merges Jersey SPI files in the fat JAR; omitting it causes `MessageBodyWriter not found` at runtime.
 - **Jakarta namespace** — this is Jersey 3; all imports are `jakarta.*`, not `javax.*`.
 - **Java version** — pinned to Temurin 17 via `.tool-versions` (asdf). Run `asdf install` once after cloning.
+- **CUMULATIVE temporality must be hard-coded** — Grafana Cloud Mimir rejects DELTA temporality (HTTP 400 "invalid temporality and type combination"). Micrometer 1.14.x reads `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` from the environment as its default, so if that env var is set to `delta` in the shell, pushes silently break. The `aggregationTemporality()` override in `MetricsFactory` must stay and must return `CUMULATIVE`.
+- **MetricsPublisher API token is write-only** — querying Grafana Cloud Mimir's Prometheus API (`prometheus-prod-56-prod-us-east-2.grafana.net`) requires a Viewer-role token, not the MetricsPublisher token used for OTLP pushes. Use Grafana Cloud Explore UI or create a separate token to read metrics back.
